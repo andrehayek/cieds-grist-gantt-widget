@@ -1,0 +1,10 @@
+@page { size: A3 landscape; margin: 8mm; }
+@media print {
+  body { background: #fff !important; }
+  .app-header, .tabs, .filters, .view-toolbar, #view-projects, .dialog, .toast { display: none !important; }
+  #view-gantt { display: block !important; }
+  .gantt-scroll { overflow: visible !important; max-height: none !important; border: 0 !important; box-shadow: none !important; }
+  .gantt-header { position: static !important; }
+  .gantt-header-label, .gantt-project-label { position: static !important; }
+  .gantt-row { break-inside: avoid; }
+}

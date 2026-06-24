@@ -1,0 +1,10 @@
+[
+  {
+    "name": "CIEDS Project Portfolio",
+    "widgetId": "@your-github-user/cieds-project-portfolio",
+    "url": "https://YOUR-GITHUB-USER.github.io/cieds-grist-gantt-widget/",
+    "accessLevel": "full",
+    "renderAfterReady": true,
+    "description": "Gantt précis, prolongations, jalons, filtres et vue projets."
+  }
+]

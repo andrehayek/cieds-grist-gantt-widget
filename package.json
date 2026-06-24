@@ -1,0 +1,20 @@
+{
+  "name": "cieds-grist-gantt-widget",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Widget Grist léger pour visualiser et gérer le portefeuille de projets CIEDS.",
+  "scripts": {
+    "dev": "python3 -m http.server 8080",
+    "check": "node scripts/check.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "grist": {
+    "name": "CIEDS Project Portfolio",
+    "widgetId": "@your-github-user/cieds-project-portfolio",
+    "published": false,
+    "accessLevel": "full",
+    "renderAfterReady": true,
+    "description": "Gantt précis, prolongations, jalons, filtres et vue projets pour Grist."
+  }
+}

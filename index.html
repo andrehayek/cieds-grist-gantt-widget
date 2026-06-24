@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>CIEDS — Portefeuille projets</title>
+  <link rel="stylesheet" href="./assets/css/styles.css">
+  <link rel="stylesheet" href="./assets/css/print.css" media="print">
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">CIEDS · OP3</p>
+        <h1>Portefeuille de projets</h1>
+        <p id="connection-status" class="connection-status">Initialisation…</p>
+      </div>
+      <div class="header-actions">
+        <button id="refresh-button" class="button button-secondary" type="button">Actualiser</button>
+        <button id="export-button" class="button button-primary" type="button">Exporter en PDF</button>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Vues du portefeuille">
+      <button class="tab-button is-active" type="button" data-tab="gantt">Gantt</button>
+      <button class="tab-button" type="button" data-tab="projects">Projets</button>
+    </nav>
+
+    <section class="filters" aria-label="Filtres">
+      <label class="field field-search">
+        <span>Recherche</span>
+        <input id="filter-search" type="search" placeholder="Nom, objet, porteur, laboratoire…">
+      </label>
+      <label class="field">
+        <span>Année active</span>
+        <select id="filter-year"><option value="all">Toutes</option></select>
+      </label>
+      <label class="field">
+        <span>Vague</span>
+        <select id="filter-wave"><option value="all">Toutes</option></select>
+      </label>
+      <label class="field">
+        <span>Axe scientifique</span>
+        <select id="filter-axis"><option value="all">Tous</option></select>
+      </label>
+      <label class="field">
+        <span>Prolongation</span>
+        <select id="filter-extended">
+          <option value="all">Toutes</option>
+          <option value="yes">Prolongés</option>
+          <option value="no">Non prolongés</option>
+        </select>
+      </label>
+      <button id="clear-filters" class="button button-ghost" type="button">Réinitialiser</button>
+    </section>
+
+    <main>
+      <section id="view-gantt" class="view-panel is-active" aria-labelledby="gantt-title">
+        <div class="view-toolbar">
+          <div>
+            <h2 id="gantt-title">Diagramme de Gantt</h2>
+            <p id="result-count" class="muted">0 projet</p>
+          </div>
+          <div class="timeline-controls" aria-label="Navigation dans le temps">
+            <button id="timeline-previous" class="icon-button" type="button" title="Période précédente">←</button>
+            <button id="timeline-today" class="button button-secondary" type="button">Aujourd’hui</button>
+            <button id="timeline-next" class="icon-button" type="button" title="Période suivante">→</button>
+            <label class="compact-field">
+              <span>Échelle</span>
+              <select id="timeline-span">
+                <option value="1">1 an</option>
+                <option value="2">2 ans</option>
+                <option value="4" selected>4 ans</option>
+                <option value="6">6 ans</option>
+                <option value="12">12 ans</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div id="gantt-empty" class="empty-state" hidden>
+          <h3>Aucun projet à afficher</h3>
+          <p>Vérifie les filtres ou le mapping des colonnes Date de début et Date de fin.</p>
+        </div>
+        <div id="gantt-scroll" class="gantt-scroll" aria-live="polite"></div>
+      </section>
+
+      <section id="view-projects" class="view-panel" aria-labelledby="projects-title">
+        <div class="view-toolbar">
+          <div>
+            <h2 id="projects-title">Vue projets</h2>
+            <p class="muted">Une vue de travail lisible, connectée à la table Grist sélectionnée.</p>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="projects-table">
+            <thead>
+              <tr>
+                <th>Projet</th>
+                <th>Vague</th>
+                <th>Axe</th>
+                <th>Début</th>
+                <th>Fin</th>
+                <th>Prolongation</th>
+                <th>Budget total</th>
+                <th>Porteur principal</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="projects-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="project-dialog" class="dialog">
+    <form id="project-form" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Fiche projet</p>
+          <h2 id="project-dialog-title">Modifier le projet</h2>
+        </div>
+        <button class="icon-button" value="cancel" aria-label="Fermer" type="submit">×</button>
+      </div>
+      <div id="project-form-grid" class="form-grid"></div>
+      <div class="dialog-note">
+        Les pièces jointes restent gérées directement dans Grist. Le bouton « Sélectionner dans Grist » place le curseur sur la ligne correspondante.
+      </div>
+      <div class="dialog-actions">
+        <button id="select-in-grist" class="button button-secondary" type="button">Sélectionner dans Grist</button>
+        <button class="button button-ghost" value="cancel" type="submit">Annuler</button>
+        <button id="save-project" class="button button-primary" type="button">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="export-dialog" class="dialog dialog-small">
+    <form method="dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Export</p>
+          <h2>Préparer le PDF</h2>
+        </div>
+        <button class="icon-button" value="cancel" aria-label="Fermer" type="submit">×</button>
+      </div>
+      <fieldset class="radio-group">
+        <legend>Disposition</legend>
+        <label><input type="radio" name="export-mode" value="multipage" checked> Plusieurs pages A3 paysage, plus lisibles</label>
+        <label><input type="radio" name="export-mode" value="single"> Une seule page A3, contenu réduit</label>
+      </fieldset>
+      <p class="muted">La fenêtre d’impression contiendra toutes les lignes filtrées, même celles hors écran. Choisis ensuite « Enregistrer au format PDF ».</p>
+      <div class="dialog-actions">
+        <button class="button button-ghost" value="cancel" type="submit">Annuler</button>
+        <button id="confirm-export" class="button button-primary" type="button">Ouvrir l’impression</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
